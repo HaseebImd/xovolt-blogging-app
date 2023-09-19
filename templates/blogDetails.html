@@ -1,0 +1,64 @@
+{% extends "base.html"%}
+
+{% block title %}
+
+{{blog.title}}
+
+{% endblock %}
+
+
+
+{% block content %}
+
+    <div class="text-center mt-5">
+      <p>
+          <h2>{{blog.title}}</h2>
+          {{blog.createdat|date:'Y-m-d'}}
+          <hr/>
+      </p>
+      
+      
+    </div>
+    {{blog.description|safe}}
+    <form class="mb-5 mt-5" action="/add-new-comment" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="blogid" value="{{blog.id}}">
+      <div class="form-group">
+        <textarea name="comment" placeholder="Add new comment..." required class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+      </div>
+      <div class="row">
+        <div class="col-md-10 text-right mt-2">
+            {% comment %} <button type="submit" class="btn btn-primary">Add Comment</button> {% endcomment %}
+          </div>
+          <div class="form-group col-md-2 text-right mt-2">
+            <button type="submit" class="btn btn-primary">Add New Comment</button>
+          </div>
+        </div>
+    <form>
+    {% if comments %}
+    <h3>Comments</h3>
+    {% endif %}
+    {% for comment in comments %}
+      <div class="card mb-2">
+        <div class="card-header">
+          <div class="row">
+            <div class="col-md-1">
+              <img src="{{ comment.userID.userImage.url }}" alt="{{ user_blog.userID.name }}'s Image" style="border-radius: 50%;" width="50" height="50">
+            </div>
+            <div class="col-md-9">
+              <b>{{comment.userID.name}}</b>
+            </div>
+            <div class="col-md-2">
+              <p class="text-muted">{{ comment.blogID.createdat|date:'Y-m-d' }}</p>
+            </div>
+          </div>  
+        </div>
+        <div class="card-body">
+            <p class="mb-1">{{comment.comment}}</p>
+        </div>
+      </div>
+        
+
+      
+    {% endfor %}
+{% endblock %}

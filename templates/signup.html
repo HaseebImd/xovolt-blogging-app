@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+SignUp      
+{% endblock %}
+{% block content %}
+
+<div class="container p-2 col-md-6">
+    <h3 class="text-center">Sign Up</h3>
+    {% if error_message %}
+    {{error_message}}
+    {% endif %}
+    <hr/>
+    <form action="/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-row">
+            <div class="form-group col-md-12 mb-3">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Enter User Name">
+            </div>
+            <div class="form-group col-md-12 mb-3">
+                <label for="inputEmail4">Email</label>
+                <input type="email" class="form-control" name="email" id="inputEmail4" placeholder="Email">
+            </div>
+            <div class="form-group col-md-12 mb-3">
+                <label for="inputPassword4">Password</label>
+                <input type="password" class="form-control" name="password" id="inputPassword4" placeholder="Password">
+            </div>
+            <div class="container mt-3 mb-5">
+            <div class="text-center">
+                <!-- Input element to choose images -->
+                <input class="mb-3" type="file" id="select-image" name='images' accept="image/*">
+                {% comment %} <label for="select-image">
+                    <?xml version="1.0" ?><svg viewBox="0 0 1792 1792" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M1344 1472q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm256 0q0-26-19-45t-45-19-45 19-19 45 19 45 45 19 45-19 19-45zm128-224v320q0 40-28 68t-68 28h-1472q-40 0-68-28t-28-68v-320q0-40 28-68t68-28h427q21 56 70.5 92t110.5 36h256q61 0 110.5-36t70.5-92h427q40 0 68 28t28 68zm-325-648q-17 40-59 40h-256v448q0 26-19 45t-45 19h-256q-26 0-45-19t-19-45v-448h-256q-42 0-59-40-17-39 14-69l448-448q18-19 45-19t45 19l448 448q31 30 14 69z" />
+                    </svg>
+                    <b class="text-success">Choose Images</b>
+                </label> {% endcomment %}
+                <div class="preview_image">
+                    <!-- It will show the total number of files selected -->
+                    <p style="color:bisque;display:none;"><b><span id="total-images">0</span> File(s) Selected<b /></p>
+
+                    <!-- All images will display inside this div -->
+                    <div id="images"></div>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="d-grid gap-2 col-12 mx-auto">
+            <button class="btn btn-primary" type="submit">Sign Up</button>
+        </div>
+    </form>
+    <div class="text-center mt-4">
+        <p>Already a member? <a href="/login">Login</a></p>
+    </div>
+</div>
+
+    {% endblock %}
+
+    {% block extra_needed_js %}
+        <script>
+        const fileInput = document.getElementById('select-image');
+        const images = document.getElementById('images');
+        const totalImages = document.getElementById('total-images');
+        var imagesForCarousal = document.getElementById('imagesForCarousal')
+        // Listen to the change event on the <input> element
+        fileInput.addEventListener('change', (event) => {
+            // Get the selected image file
+            const imageFiles = event.target.files;
+
+            // Show the number of images selected
+            totalImages.innerText = imageFiles.length;
+
+            // Empty the images div
+            images.innerHTML = '';
+
+            if (imageFiles.length > 0) {
+                // Loop through all the selected images
+                for (const imageFile of imageFiles) {
+                    const reader = new FileReader();
+
+                    // Convert each image file to a string
+                    reader.readAsDataURL(imageFile);
+                    console.log(reader)
+                    // FileReader will emit the load event when the data URL is ready
+                    // Access the string using reader.result inside the callback function
+                    reader.addEventListener('load', () => {
+                        // Create new <img> element and add it to the DOM
+                        images.innerHTML += `
+                    <div class="image_box">
+                        <img src='${reader.result}' style="height:150px;width:150px;">
+                    </div>
+                `;
+                        imagesForCarousal.innerHTML += `<div class="carousel-item active">
+                    <img src='${reader.result}' class="d-block w-100" alt="..." style="width: 200px; height: 450px;">'
+                    </div>`
+                    });
+                }
+            } else {
+                // Empty the images div
+                images.innerHTML = '';
+            }
+        });
+    </script>
+
+    {% endblock extra_needed_js %}

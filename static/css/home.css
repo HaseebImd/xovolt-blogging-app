@@ -1,0 +1,10 @@
+
+a {
+        text-decoration: none;
+    }
+
+    .blog-card-image {
+    width: 100%; /* Set the width to 100% to make the image responsive */
+    height: 200px; /* Set a fixed height for the images (adjust as needed) */
+    object-fit: cover; /* Preserve aspect ratio and cover the entire container */
+}

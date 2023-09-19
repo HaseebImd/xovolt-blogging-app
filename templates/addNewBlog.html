@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+ Add New Blog        
+{% endblock %}
+{% block content %}
+
+<div class="container p-5">
+    <form class="row g-3" action="/blogs" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="col-md-12 mb-4">
+            <label for="title" class="form-label">Blog Title</label>
+            <input type="text" required class="form-control" id="title" name="title" placeholder="Please provide Content Title"
+                required value="{{content.contentTitle}}">
+        </div>
+        <div class="form-group mt-4">
+            <label class="form-label">Please provide description for Blog</label>
+            <textarea id="full-featured" name="description" value={{content.contentData|safe}}>
+            </textarea> 
+        </div>
+        <input type="file" name="headerImage" accept="image/*">
+        <hr>
+        
+        <div class="d-grid gap-2 col-12 mx-auto">
+            <button class="btn btn-outline-primary" type="submit">Publish Blog</button>
+        </div>
+    </form>
+</div>
+
+    {% endblock %}
+
+    {% block extra_needed_js %}
+
+    <script>
+        tinymce.init({
+            selector: 'textarea#full-featured',
+            plugins: 'code codesample  preview  importcss  searchreplace autolink autosave save directionality  visualblocks visualchars fullscreen image link media  template codesample table charmap  pagebreak nonbreaking anchor  insertdatetime advlist lists  wordcount    help   charmap   quickbars  emoticons',
+
+            mobile: {
+                plugins: ' code codesample preview importcss  searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media  template codesample table charmap pagebreak nonbreaking anchor  insertdatetime advlist lists  wordcount    help   charmap  quickbars  emoticons '
+            },
+
+            menu: {
+                tc: {
+                    title: 'Comments',
+                    items: 'addcomment showcomments deleteallconversations'
+                }
+            },
+            menubar: 'file edit view insert format tools table tc help',
+            toolbar: 'code| undo redo | bold italic underline strikethrough | fontfamily fontsize blocks | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist checklist | forecolor backcolor casechange  removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment',
+            autosave_ask_before_unload: true,
+            autosave_interval: '30s',
+            autosave_prefix: '{path}{query}-{id}-',
+            autosave_restore_when_empty: false,
+            autosave_retention: '2m',
+            image_advtab: true,
+            link_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_list: [
+                { title: 'My page 1', value: 'https://www.tiny.cloud' },
+                { title: 'My page 2', value: 'http://www.moxiecode.com' }
+            ],
+            image_class_list: [
+                { title: 'None', value: '' },
+                { title: 'Some class', value: 'class-name' }
+            ],
+            importcss_append: true,
+            templates: [
+                { title: 'New Table', description: 'creates a new table', content: '<div class="mceTmpl"><table width="98%%"  border="0" cellspacing="0" cellpadding="0"><tr><th scope="col"> </th><th scope="col"> </th></tr><tr><td> </td><td> </td></tr></table></div>' },
+                { title: 'Starting my story', description: 'A cure for writers block', content: 'Once upon a time...' },
+                { title: 'New list with dates', description: 'New List with dates', content: '<div class="mceTmpl"><span class="cdate">cdate</span><br /><span class="mdate">mdate</span><h2>My List</h2><ul><li></li><li></li></ul></div>' }
+            ],
+            codesample_languages: [
+                { text: 'HTML/XML', value: 'html' },
+                { text: 'JavaScript', value: 'javascript' },
+                { text: 'CSS', value: 'css' },
+                // Add more languages if needed
+            ],
+            template_cdate_format: '[Date Created (CDATE): %m/%d/%Y : %H:%M:%S]',
+            template_mdate_format: '[Date Modified (MDATE): %m/%d/%Y : %H:%M:%S]',
+            height: 600,
+            image_caption: true,
+            quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
+            noneditable_noneditable_class: 'mceNonEditable',
+            toolbar_mode: 'sliding',
+            spellchecker_ignore_list: ['Ephox', 'Moxiecode'],
+
+            content_style: '.mymention{ color: gray; }',
+            contextmenu: 'link image table configurepermanentpen',
+            a11y_advanced_options: true,
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            nonbreaking_force_tab: true,
+
+            file_picker_callback: function (cb, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function () {
+                    var file = this.files[0];
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+
+
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                input.click();
+            },
+
+        }); 
+    </script>
+
+    {% endblock extra_needed_js %}

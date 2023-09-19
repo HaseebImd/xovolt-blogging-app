@@ -1,0 +1,76 @@
+{% extends "base.html"%}
+
+{% block title %}
+
+Blogs
+
+{% endblock %}
+
+
+
+{% block content %}
+
+
+    <div class="text-center mt-5">
+        <h2>
+            All Blogs
+        </h2>
+        <hr/>
+    </div>
+    <table class="table mt-4">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Title</th>
+            <th scope="col">Author</th>
+            <th scope="col">Created</th>
+            <th scope="col">Updated</th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_blog in user_blogs %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ user_blog.blogID.title|truncatechars:30 }}</td>
+                    {% comment %} <td>{{ user_blog.userID.name }}</td> {% endcomment %}
+                    <td>
+                        <img src="{{ user_blog.userID.userImage.url }}" alt="{{ user_blog.userID.name }}'s Image" style="border-radius: 50%;" width="50" height="50">
+                        {{ user_blog.userID.name }} <!-- Display the author's name -->
+                    </td>
+                    <td>{{ user_blog.blogID.createdat|date:'Y-m-d' }}</td>
+                    <td>{{ user_blog.blogID.updatedat|date:'Y-m-d' }}</td>
+                    <td> <a href="{% url 'BlogDetails' id=user_blog.blogID.id %}" class="btn btn-outline-secondary">View Details</a></td>
+                    <td> <a href="{% url 'EditBlog' id=user_blog.blogID.id %}" class="btn btn-outline-warning">Edit Blog</a></td>
+                    <td> <a href="{% url 'DeleteBlog' id=user_blog.blogID.id %}" class="btn btn-outline-danger">Delete Blog</a></td>
+                </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+
+    <div class="row">
+        {% for user_blog in user_blogs %}
+        <div class="card mb-3 col-md-3 p-1 m-1  ">
+            <a href="{% url 'BlogDetails' id=user_blog.blogID.id %}">
+                {% if user_blog.blogID.headerImage %}
+                    <img src="{{ user_blog.blogID.headerImage.url }}" class="card-img-top blog-card-image" alt="...">
+
+                {% else %}
+                    <img src="https://images.yourstory.com/cs/wordpress/2017/02/52-Blog.jpg?w=1152&fm=auto&ar=2:1&mode=crop&crop=faces" class="card-img-top blog-card-image" alt="...">
+                        <!-- Provide a default image or alternative content here -->
+                {% endif %}
+                <div class="card-body">
+                    <b class="card-title text-secondary">{{ user_blog.blogID.title|truncatechars:28 }}</b>
+                    <hr/>
+                    <p class="card-text"><small class="text-muted">Last updated {{ user_blog.blogID.updatedat|date:'Y-m-d' }} </small></p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+
+{% endblock %}
