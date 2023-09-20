@@ -26,9 +26,9 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
   <div class="container-fluid">
     {% if request.session.user_id %}
-    <a class="navbar-brand" href="/home">Blogs</a>
+    <a class="navbar-brand" href="/home"><img src="{% static 'images/logo.png' %}" alt="Logo" ></a>
     {% else %}
-    <a class="navbar-brand" href="#">Blogs</a>
+    <a class="navbar-brand" href="#"><img src="{% static 'images/logo.png' %}" alt="Logo" ></a>
     {% endif %}
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
@@ -80,7 +80,6 @@
       <form class="d-flex p-2">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
         <button class="btn btn-outline-success" type="button">Search</button>
-        
       </form>
     </div>
   </div>

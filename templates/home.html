@@ -12,10 +12,7 @@ Blogs
 
 
     <div class="text-center mt-5">
-        <h2>
-            All Blogs
-        </h2>
-        <hr/>
+        
     </div>
     {% comment %} <table class="table mt-4">
         <thead>
@@ -51,7 +48,7 @@ Blogs
     </table> {% endcomment %}
 
     <div class="row justify-content-center">
-        {% for user_blog in user_blogs %}
+        {% comment %} {% for user_blog in user_blogs %}
         <div class="card mb-3 col-md-3 p-1 m-2  ">
             <a href="{% url 'BlogDetails' id=user_blog.blogID.id %}">
                 {% if user_blog.blogID.headerImage %}
@@ -75,6 +72,35 @@ Blogs
             </div>
             {% endif %}
         </div>
+        {% endfor %} {% endcomment %}
+        {% for category, blogs in categorized_blogs.items %}
+            <h3 class="mb-3">{{ category }} : </h3>
+        
+            {% for blog in blogs %}
+                <div class="card mb-3 col-md-3 p-1 m-2  ">
+                    <a href="{% url 'BlogDetails' id=blog.id %}">
+                        {% if blog.headerImage %}
+                            <img src="{{ blog.headerImage.url }}" class="card-img-top blog-card-image" alt="...">
+
+                        {% else %}
+                            <img src="https://images.yourstory.com/cs/wordpress/2017/02/52-Blog.jpg?w=1152&fm=auto&ar=2:1&mode=crop&crop=faces" class="card-img-top blog-card-image" alt="...">
+                                <!-- Provide a default image or alternative content here -->
+                        {% endif %}
+                    </a>    
+                    <div class="card-body">
+                        <b class="card-title text-secondary">{{ blog.title|truncatechars:28 }}</b>
+                    </div>
+                    {% if request.session.user_id %}
+                    <div class="card-footer text-center ">
+                    <span> <small class="text-muted">{{ blog.updatedat|date:'Y-m-d' }} | <a href="{% url 'EditBlog' id=blog.id %}" class="card-link">Update</a> <a href="{% url 'DeleteBlog' id=blog.id %}" class="card-link">Delete</a></small></span>
+                    </div>
+                    {% else %}
+                    <div class="card-footer text-center ">
+                    <span> <small class="text-muted">{{ blog.updatedat|date:'Y-m-d' }} </small></span>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
         {% endfor %}
     </div>
 

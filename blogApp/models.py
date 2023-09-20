@@ -18,10 +18,6 @@ class Blogs(models.Model):
         return self.title
     
 
-
-    
-
-
 class MyUser(models.Model):
     name            =models.CharField(max_length=200)
     email           =models.EmailField(max_length=200)
@@ -68,4 +64,27 @@ class Comments(models.Model):
     
 
 
+class Category(models.Model):
+    category = models.CharField(max_length=200, unique=True)
+    createdat = models.DateTimeField(
+        db_column='createdAt', blank=True, null=True, auto_now_add=True)
+    updatedat = models.DateTimeField(
+        db_column='updatedAt', blank=True, null=True, auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.category
     
+
+class BlogCategory(models.Model):
+    blogID = models.ForeignKey(Blogs, on_delete=models.CASCADE)
+    categoryID = models.ForeignKey(Category, on_delete=models.CASCADE)
+    createdat = models.DateTimeField(
+        db_column='createdAt', blank=True, null=True, auto_now_add=True)
+    updatedat = models.DateTimeField(
+        db_column='updatedAt', blank=True, null=True, auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Blog Categories"

@@ -17,19 +17,42 @@ from .serializers import *
 
 class MyHome(View):
     def get(self, request):
-        user_blogs = UserBlogs.objects.all().order_by("-id")
         if user := checkUserInSession(request):
-            context = {"user_blogs": user_blogs, "user": user}
-            return render(request, "home.html", context)
-        context = {"user_blogs": user_blogs}
-        return render(request, "home.html", context)
+        # Get a list of unique categories with associated blogs
+            categories_with_blogs = Category.objects.filter(blogcategory__isnull=False).distinct()
 
+            # Create a dictionary to store categorized blogs
+            categorized_blogs = {}
+
+            for category in categories_with_blogs:
+                # Get blog IDs associated with the current category
+                blog_ids = BlogCategory.objects.filter(categoryID=category).values_list('blogID', flat=True)
+
+                # Fetch the blogs associated with these IDs
+                blogs = Blogs.objects.filter(id__in=blog_ids)
+
+                categorized_blogs[category] = blogs
+
+            context = {
+                'categorized_blogs': categorized_blogs,
+                'user': user,
+            }
+            return render(request, "home.html", context)            # user_blogs = UserBlogs.objects.all().order_by("-id")
+            # if user := checkUserInSession(request):
+            #     context = {"user_blogs": user_blogs, "user": user}
+            #     return render(request, "home.html", context)
+            # context = {"user_blogs": user_blogs}
+            # return render(request, "home.html", context)
+        else:
+            return redirect("/login")
 class MyBlogs(View):
     def get(self, request):
+        categories=Category.objects.all()
         if user := checkUserInSession(request):
-            context = {"user": user}
+            context = {"user": user,"categories":categories}
             return render(request, "addNewBlog.html", context)
-        
+        else:
+            return redirect("/login")
     def post(self, request):
         title = request.POST.get("title")
         description = request.POST.get("description")
@@ -37,11 +60,20 @@ class MyBlogs(View):
         image = images[0] if len(images) != 0 else "None"
         newBlog = Blogs(title=title, description=description,headerImage=image)
         newBlog.save()
-        userBlogs = UserBlogs(
-            userID=MyUser.objects.get(id=request.session.get("user_id")), blogID=newBlog
-        )
-        userBlogs.save()
-        return redirect("/home")
+        category_id = request.POST.get('category')
+        category = Category.objects.get(id=category_id)
+        blog_category = BlogCategory(blogID=newBlog, categoryID=category)
+        blog_category.save()
+        if request.session.get("admin"):
+            return redirect("/home")
+
+        if user_id := request.session.get("user_id"):
+            user = MyUser.objects.get(id=user_id)
+            user_blogs = UserBlogs(userID=user, blogID=newBlog)
+            user_blogs.save()
+
+        return redirect("/home") 
+        
 
     def delete(self, request):  # sourcery skip: avoid-builtin-shadow
         id = request.GET.get("id")
