@@ -13,11 +13,9 @@
     <div class="text-center mt-5">
       <p>
           <h2>{{blog.title}}</h2>
-          {{blog.createdat|date:'Y-m-d'}}
+          <i class="text-secondary">{{blog.createdat|date:'Y-m-d'}}</i>
           <hr/>
       </p>
-      
-      
     </div>
     {{blog.description|safe}}
     <form class="mb-5 mt-5" action="/add-new-comment" method="post">

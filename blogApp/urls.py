@@ -9,18 +9,17 @@ urlpatterns = [
     path('login', Login.as_view(),name="login"),
     path('home', MyHome.as_view(),),
     path('blogs', MyBlogs.as_view(),name="blogs"),
-    # path('add-new-blog',views.AddNewBlog, name="AddNewBlog"),
     path('blog-details/<int:id>', views.BlogDetails, name="BlogDetails"),
     path('delete-blog/<int:id>', views.DeleteBlog, name="DeleteBlog"),
     path('edit-blog/<int:id>', views.EditBlog, name="EditBlog"),
     path('logout', views.Logout, name="Logout"),
     
     # Comment Section
-
     path('add-new-comment', views.AddNewComment, name="AddNewComment"),
+    path('comment-section', views.CommentSection, name="CommentSection"),
+    path('approve-comment', views.ApproveComment, name="ApproveComment"),
 
     # Functionality using DRF
-
     path("blogsDRF", BlogsDRF.as_view(),),
 ]
 if settings.DEBUG:  

@@ -1,0 +1,71 @@
+{% extends "base.html"%}
+
+{% block title %}
+
+Comments
+
+{% endblock %}
+
+
+
+{% block content %}
+
+    {% if comments %}
+        <h3 class="text-center mt-2">Comments</h3>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mt-4">
+                <thead>
+                    <tr class="text-center">
+                    <th scope="col">#</th>
+                    <th scope="col">Comment</th>
+                    <th scope="col">Approve</th>
+                    <th scope="col">Blog Title</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Cread At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comment in comments %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{comment.comment}}</td>
+                            {% if comment.approved %}
+                                <td> <input type="checkbox" checked="checked" onchange="handleCheckboxChange(this, '{{ comment.id }}')"></td>
+                            {% else %}
+                                <td>  <input type="checkbox" onchange="handleCheckboxChange(this, '{{ comment.id }}')"></td>
+                            {% endif %}
+
+                            <td>{{comment.blogID.title}}</td>
+                            <td>{{comment.userID.name}}</td>
+                            <td>{{ comment.updatedat|date:'Y-m-d' }}</td>
+                        </tr>
+                    {% endfor %}       
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block extra_needed_js %}
+
+    <script>
+        function handleCheckboxChange(checkbox, commentId) {
+            $.ajax({
+                url: '/approve-comment', 
+                method: 'GET',
+                dataType: 'json',
+                data: {
+                comment_id: commentId
+                    },
+                success: function(data) {
+                
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors here
+                    console.error(error);
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

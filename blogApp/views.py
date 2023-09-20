@@ -5,8 +5,12 @@ from .decorators import api_login_required
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import JsonResponse
+from django.contrib.auth.models import User
+from functools import wraps
 from .models import *
 from .serializers import *
+
 
 # Create your views here.
 
@@ -88,7 +92,12 @@ def EditBlog(request, id):  # sourcery skip: extract-method
 
 class SignUp(View):
     def get(self, request):
+        if user := checkUserInSession(request):
+            return redirect('/home')
+        
         return render(request, "signup.html")
+        
+        
 
     def post(self, request):
         name = request.POST.get("name")
@@ -109,23 +118,33 @@ class SignUp(View):
 
 class Login(View):
     def get(self, request):
+        if user := checkUserInSession(request):
+            return redirect('/home')
         return render(request, "login.html")
+        
 
-    def post(self, request):
-        # sourcery skip: remove-unnecessary-else, swap-if-else-branches, use-named-expression
+    def post(self, request):  # sourcery skip: use-named-expression
         email = request.POST.get("email")
         password = request.POST.get("password")
-        print(email, password)
-        user = MyUser.objects.filter(email=email, password=password).first()
-        if user:
-            # If the user exists, store the user's ID in the session
-            request.session["user_id"] = user.id
+        my_user = MyUser.objects.filter(email=email, password=password).first()
+        if my_user:
+            request.session["user_id"] = my_user.id
+            request.session["admin"] = False
             return redirect("/home")
         else:
-            # Handle invalid login credentials, show an error message, or redirect to a login error page
-            return render(
-                request, "login.html", {"error_message": "Invalid credentials"}
-            )
+            print("checking from user table")
+            # If the user is not found in the MyUser table, try to find them in the User table
+            user = User.objects.filter(email=email).first()
+            if user and user.check_password(password):
+                # If the user is found in the User table and the password is correct, log them in
+                request.session["user_id"] = user.id
+                request.session["admin"] = True
+                return redirect("/home")
+
+        # Handle invalid login credentials, show an error message, or redirect to a login error page
+        return render(
+            request, "login.html", {"error_message": "Invalid credentials"}
+        )
 
 
 def Logout(request):
@@ -135,11 +154,13 @@ def Logout(request):
 
 def checkUserInSession(request):
     if user_id := request.session.get("user_id"):
+        if admin := request.session.get("admin"):
+            return User.objects.get(id=user_id)
         return MyUser.objects.get(id=user_id)
     else:
         return False
 
-
+# CRUD Functionality using DRF
 class BlogsDRF(APIView):
     def get(self, request):
         blogs = Blogs.objects.all()
@@ -200,3 +221,37 @@ def AddNewComment(request):
         )
         newComment.save()
         return redirect(f"/blog-details/{blogID}")
+    
+
+@api_login_required
+def CommentSection(request):
+    if request.method == "GET":
+        comments=Comments.objects.all().order_by("-id")
+        if user := checkUserInSession(request):
+            context = {"comments": comments, "user": user}
+            return render(request, "comments.html", context)
+        
+
+def ApproveComment(request):
+    if request.method == 'GET':
+        comment_id = request.GET.get('comment_id')
+        try:
+            comment = Comments.objects.get(pk=comment_id)
+            comment.approved = not comment.approved
+            comment.save()
+            response_data = {
+                'message': 'Comment approval toggled successfully',
+            }
+            return JsonResponse(response_data)
+        except Comments.DoesNotExist:
+            error_message = 'Comment not found with ID ' + comment_id
+            response_data = {
+                'error': error_message,
+            }
+            return JsonResponse(response_data, status=404)
+        except Exception as e:
+            error_message = 'An error occurred: ' + str(e)
+            response_data = {
+                'error': error_message,
+            }
+            return JsonResponse(response_data, status=500)
