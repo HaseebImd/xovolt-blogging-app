@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
+from .utils import send_new_blog_notification
 from .models import Blogs, MyUser, UserBlogs, Comments
 from .decorators import api_login_required
 from rest_framework.decorators import api_view
@@ -10,8 +11,11 @@ from django.contrib.auth.models import User
 from functools import wraps
 from .models import *
 from .serializers import *
-
-
+from .utils import send_new_blog_notification
+import asyncio
+from asgiref.sync import async_to_sync, sync_to_async
+from django.utils.decorators import method_decorator
+from django.db import transaction
 # Create your views here.
 
 
@@ -45,6 +49,7 @@ class MyHome(View):
             # return render(request, "home.html", context)
         else:
             return redirect("/login")
+
 class MyBlogs(View):
     def get(self, request):
         categories=Category.objects.all()
@@ -60,6 +65,7 @@ class MyBlogs(View):
         image = images[0] if len(images) != 0 else "None"
         newBlog = Blogs(title=title, description=description,headerImage=image)
         newBlog.save()
+        send_new_blog_notification(newBlog.title)
         category_id = request.POST.get('category')
         category = Category.objects.get(id=category_id)
         blog_category = BlogCategory(blogID=newBlog, categoryID=category)
