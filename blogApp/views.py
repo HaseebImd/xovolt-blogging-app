@@ -3,14 +3,10 @@ from django.views import View
 from .utils import send_new_blog_notification
 from .models import Blogs, MyUser, UserBlogs, Comments
 from .decorators import api_login_required
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from functools import wraps
 from .models import *
-from .serializers import *
 from .utils import send_new_blog_notification
 import asyncio
 from asgiref.sync import async_to_sync, sync_to_async
@@ -199,52 +195,6 @@ def checkUserInSession(request):
         return False
 
 # CRUD Functionality using DRF
-class BlogsDRF(APIView):
-    def get(self, request):
-        blogs = Blogs.objects.all()
-        serializer = BlogSerializer(blogs, many=True)
-        return Response({"status": 200, "resp": serializer.data})
-
-    def post(self, request):
-        data = request.data
-        serializer = BlogSerializer(data=data)
-        if not serializer.is_valid():
-            return Response(
-                {"status": 400, "resp": "Both title and description are required"}
-            )
-        serializer.save()
-        return Response({"status": 200, "resp": serializer.data})
-
-    def patch(self, request):
-        try:
-            data = request.data
-            blog_id = request.GET.get("id", None)
-
-            if blog_id is None:
-                return Response(
-                    {"status": 400, "resp": "Missing 'id' parameter in URL."}
-                )
-
-            blog = Blogs.objects.get(id=blog_id)
-            serializer = BlogSerializer(blog, data=data, partial=True)
-
-            if not serializer.is_valid():
-                return Response({"status": 400, "resp": serializer.errors})
-
-            serializer.save()
-
-            return Response({"status": 200, "resp": serializer.data})
-        except Exception as e:
-            return Response({"status": 400, "resp": "Error from exception"})
-
-    def delete(self, request):  # sourcery skip: avoid-builtin-shadow
-        try:
-            id = request.GET.get("id")
-            blog = Blogs.objects.get(id=id)
-            blog.delete()
-            return Response({"status": 200, "resp": "Blog deleted successfully"})
-        except Exception as e:
-            return Response({"status": 400, "resp": "Invalid Blog Id"})
 
 @api_login_required
 def AddNewComment(request):

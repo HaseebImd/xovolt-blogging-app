@@ -2,7 +2,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from blogApp import views
-from blogApp.views import Blogs, SignUp, Login,BlogsDRF, MyBlogs,MyHome
+from blogApp.views import Blogs, SignUp, Login, MyBlogs,MyHome
 urlpatterns = [
     
     path('', SignUp.as_view(),),
@@ -19,8 +19,7 @@ urlpatterns = [
     path('comment-section', views.CommentSection, name="CommentSection"),
     path('approve-comment', views.ApproveComment, name="ApproveComment"),
 
-    # Functionality using DRF
-    path("blogsDRF", BlogsDRF.as_view(),),
+
 ]
 if settings.DEBUG:  
         urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)  

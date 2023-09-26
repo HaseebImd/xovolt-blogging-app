@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blogApp',
     'tinymce',
-    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -135,13 +134,3 @@ STATICFILES_DIRS = (
 )
 
 
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.mail.yahoo.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '####'  # Replace with your email address
-EMAIL_HOST_PASSWORD = '###'  # Replace with your email password
-EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = '####'
